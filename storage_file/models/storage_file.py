@@ -60,6 +60,19 @@ class StorageFile(models.Model):
     )
     file_type = fields.Selection([])
 
+    is_encrypted = fields.Boolean(string="Encrypted", default=False)
+
+    @api.model
+    def create(self, vals):
+        is_encrypt_fields = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("g2p_registry_encryption.encrypt_registry", default=False)
+        )
+        if is_encrypt_fields:
+            vals["is_encrypted"] = True
+        return super().create(vals)
+
     _sql_constraints = [
         (
             "path_uniq",
